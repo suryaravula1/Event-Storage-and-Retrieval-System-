@@ -6,8 +6,7 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
-
-	// "sync"
+	"sync"
 	"time"
 
 	"log-persist-v2/internal/cache"
@@ -70,14 +69,14 @@ func NewFilterHandler(cc *cache.ChunkCache, tmpQueue *cache.TmpQueue) http.Handl
 		}
 		var filteredEvents []models.Event
 		var processedChunkIDs []string
-		// var mu sync.Mutex
+		var mu sync.Mutex
 
-		// wg := &sync.WaitGroup{}
+		wg := &sync.WaitGroup{}
 
 		// Process chunkCache
-		// wg.Add(1)
-		func() {
-			// defer wg.Done()
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
 			log.Printf("chunk cache size: %.2f MB", cc.SizeMB())
 
 			for _, chunks := range cc.ReadCache() {
@@ -98,23 +97,23 @@ func NewFilterHandler(cc *cache.ChunkCache, tmpQueue *cache.TmpQueue) http.Handl
 						
 						if eventTime.After(startTime) && eventTime.Before(endTime) {
 							if matchesFilter(event.Data, regex, req.Contains) {
-								// mu.Lock()
+								mu.Lock()
 								filteredEvents = append(filteredEvents, event)
-								// mu.Unlock()
+								mu.Unlock()
 							}
 						}
 					}
-					// mu.Lock()
+					mu.Lock()
 					processedChunkIDs = append(processedChunkIDs, chunk.ChunkID)
-					// mu.Unlock()
+					mu.Unlock()
 				}
 			}
 		}()
 
 		// Process tmpQueue
-		// wg.Add(1)
+		wg.Add(1)
 		go func() {
-			// defer wg.Done()
+			defer wg.Done()
 			for _, event := range tmpQueue.ReadQueue() {
 				eventTime, err := time.Parse(time.RFC3339, event.Timestamp)
 				if err != nil {
@@ -124,23 +123,28 @@ func NewFilterHandler(cc *cache.ChunkCache, tmpQueue *cache.TmpQueue) http.Handl
 
 				if eventTime.After(startTime) && eventTime.Before(endTime) {
 					if matchesFilter(event.Data, regex, req.Contains) {
-						// mu.Lock()
+						mu.Lock()
 						filteredEvents = append(filteredEvents, event)
-						// mu.Unlock()
+						mu.Unlock()
 					}
 				}
 			}
 		}()
 
-		// wg.Wait()
+		wg.Wait()
 
 		// Prepare the response
 		resp := map[string]interface{}{
-			"events":    filteredEvents,
-			"chunk_ids": processedChunkIDs,
+			"events":      filteredEvents,
+			"chunk_ids":   processedChunkIDs,
+			"total_count": len(filteredEvents),
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(resp)
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			log.Printf("Error encoding response: %v", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
 	}
 }
 
