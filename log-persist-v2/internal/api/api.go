@@ -22,7 +22,11 @@ type FilterRequest struct {
 
 func NewFilterHandler(cc *cache.ChunkCache, tmpQueue *cache.TmpQueue) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// var req FilterRequest
+		// Set response headers for better performance
+		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+		w.Header().Set("Pragma", "no-cache")
+		w.Header().Set("Expires", "0")
+		
 		queryParams := r.URL.Query()
 
 		// Extract specific query parameters
@@ -33,7 +37,13 @@ func NewFilterHandler(cc *cache.ChunkCache, tmpQueue *cache.TmpQueue) http.Handl
 
 		// Handle missing parameters
 		if startTime_ == "" || endTime_ == "" {
-			http.Error(w, "Missing required query parameters", http.StatusBadRequest)
+			http.Error(w, "Missing required query parameters: startTime and endTime are required", http.StatusBadRequest)
+			return
+		}
+		
+		// Validate time range
+		if startTime_ == endTime_ {
+			http.Error(w, "startTime and endTime cannot be the same", http.StatusBadRequest)
 			return
 		}
 
@@ -51,12 +61,18 @@ func NewFilterHandler(cc *cache.ChunkCache, tmpQueue *cache.TmpQueue) http.Handl
 		// Parse start and end times
 		startTime, err := time.Parse(time.RFC3339, startTime_)
 		if err != nil {
-			http.Error(w, "Invalid startTime format", http.StatusBadRequest)
+			http.Error(w, "Invalid startTime format. Expected RFC3339 format (e.g., 2024-06-15T10:30:00Z)", http.StatusBadRequest)
 			return
 		}
 		endTime, err := time.Parse(time.RFC3339, endTime_)
 		if err != nil {
-			http.Error(w, "Invalid endTime format", http.StatusBadRequest)
+			http.Error(w, "Invalid endTime format. Expected RFC3339 format (e.g., 2024-06-15T10:30:00Z)", http.StatusBadRequest)
+			return
+		}
+		
+		// Validate time order
+		if startTime.After(endTime) {
+			http.Error(w, "startTime must be before endTime", http.StatusBadRequest)
 			return
 		}
 
