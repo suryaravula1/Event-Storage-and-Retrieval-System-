@@ -166,12 +166,21 @@ func NewFilterHandler(cc *cache.ChunkCache, tmpQueue *cache.TmpQueue) http.Handl
 
 // matchesFilter checks if an event matches the regex and contains filter
 func matchesFilter(eventData string, regex *regexp.Regexp, contains string) bool {
+	// Early return if no filters are applied
+	if regex == nil && contains == "" {
+		return true
+	}
+	
+	// Check regex match first (more expensive operation)
 	if regex != nil && !regex.MatchString(eventData) {
 		return false
 	}
+	
+	// Check contains filter
 	if contains != "" && !strings.Contains(eventData, contains) {
 		return false
 	}
+	
 	return true
 }
 
