@@ -1,0 +1,7 @@
+# Exclude the following files and directories
+.git
+bin
+*.log
+Dockerfile
+docker-compose.yml
+

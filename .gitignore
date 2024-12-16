@@ -1,0 +1,29 @@
+log-search-ui/node_modules
+infra/.miniodata
+infra/.redis_data
+sample
+
+
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+log-search-ui/node_modules
+log-search-ui/.pnp
+log-search-ui/.pnp.js
+
+# testing
+log-search-ui/coverage
+
+# production
+log-search-ui/build
+
+# misc
+log-search-ui/.DS_Store
+log-search-ui/.env.local
+log-search-ui/.env.development.local
+log-search-ui/.env.test.local
+log-search-ui/.env.production.local
+
+log-search-ui/npm-debug.log*
+log-search-ui/yarn-debug.log*
+log-search-ui/yarn-error.log*

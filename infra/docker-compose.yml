@@ -1,0 +1,97 @@
+services:
+
+
+  lre:
+    container_name : lre
+    image: ess/log-monitor-lambda:latest
+    ports:
+      - "4500:8080"
+    depends_on:
+      - minio
+    environment:
+      - AWS_ACCESS_KEY_ID=abcd
+      - AWS_SECRET_ACCESS_KEY=abcd
+      - AWS_SESSION_TOKEN=abcd
+      - AWS_REGION=us-east-1
+  log-push:
+    depends_on:
+      - kafka
+    image : ess/log-push:latest
+    container_name: log-push
+    ports:
+      - "9005:9000"
+    environment:
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 9092
+      KAFKA_TOPIC: kafka
+
+  log-search:
+    image: ess/log-search:latest
+    container_name: logsearch
+    depends_on:
+      - redis
+    ports:
+      - "3000:3000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+  
+  log-persist:
+    image: ess/log-persist:latest
+    container_name: logpersist
+    depends_on:
+      - log-push
+    ports:
+      - "8082:8082"
+
+
+
+  minio:
+    image: quay.io/minio/minio
+    container_name : minio
+    ports: 
+      - "9003:9003"
+      - "9004:9000"
+    environment:
+      - MINIO_ROOT_USER=root
+      - MINIO_ROOT_PASSWORD=qwertyuiop
+      # - MINIO_SERVER_URL=http://localhost:9004
+
+
+    volumes:
+      - .miniodata:/data
+    command: server /data --console-address ":9003"
+
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 2181:2181
+    
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - 9092:9092
+      - 29092:29092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+
+

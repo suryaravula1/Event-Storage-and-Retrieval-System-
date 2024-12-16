@@ -1,0 +1,77 @@
+{
+    "logs": [
+      {
+        "timestamp": "2024-10-23T10:15:30Z",
+        "raw_log": "User login successful",
+        "metadata": {
+          "log_level": "info",
+          "request_id": "REQ12345",
+          "source": "auth_service"
+        }
+      },
+      {
+        "timestamp": "2024-10-23T10:16:12Z",
+        "raw_log": "Error while processing payment",
+        "metadata": {
+          "log_level": "error",
+          "request_id": "REQ12346",
+          "source": "payment_service"
+        }
+      },
+      {
+        "timestamp": "2024-10-23T10:17:05Z",
+        "raw_log": "Warning: low disk space",
+        "metadata": {
+          "log_level": "warn",
+          "request_id": "REQ12347",
+          "source": "system_monitor"
+        }
+      },
+      {
+        "timestamp": "2024-10-23T10:18:45Z",
+        "raw_log": "Database connection established",
+        "metadata": {
+          "log_level": "info",
+          "request_id": "REQ12348",
+          "source": "db_service"
+        }
+      },
+      {
+        "timestamp": "2024-10-23T10:19:32Z",
+        "raw_log": "User profile updated",
+        "metadata": {
+          "log_level": "info",
+          "request_id": "REQ12349",
+          "source": "user_service"
+        }
+      },
+      {
+        "timestamp": "2024-10-23T10:20:14Z",
+        "raw_log": "Failed to send email",
+        "metadata": {
+          "log_level": "error",
+          "request_id": "REQ12350",
+          "source": "email_service"
+        }
+      },
+      {
+        "timestamp": "2024-10-23T10:21:07Z",
+        "raw_log": "User logout successful",
+        "metadata": {
+          "log_level": "info",
+          "request_id": "REQ12351",
+          "source": "auth_service"
+        }
+      },
+      {
+        "timestamp": "2024-10-23T10:22:43Z",
+        "raw_log": "CPU usage exceeded threshold",
+        "metadata": {
+          "log_level": "warn",
+          "request_id": "REQ12352",
+          "source": "system_monitor"
+        }
+      }
+    ]
+  }
+  
