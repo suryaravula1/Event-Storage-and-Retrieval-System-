@@ -1,7 +1,7 @@
 # Event Storage System
 A micro-service based project which uses serverless compute to retrieve and search data from object storage like S3.
 
-[Project Report](https://drive.google.com/file/d/1XUzXbl59cbNiDq2CCOysHPKWMzEyuUAa/view?usp=sharing)
+
 
 ## What problem this project is solving ?
 Event logging and storage are among the key features in modern distributed systems, enabling organizations to track system behaviors, diagnose issues, and perform analytics on system performance. With ever-increasing application size and complexity, the volume of log data has grown exponentially, creating challenges in ingestion, storage, processing, and retrieval. Traditional log management systems scale inefficiently, with many failing to handle real-time data and provide fast search capabilities over large datasets.
