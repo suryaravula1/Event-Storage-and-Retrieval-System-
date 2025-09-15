@@ -1,0 +1,40 @@
+# Stage 1: Build the Go app
+FROM golang:1.23 AS builder
+
+# Install dependencies
+RUN apt-get update && apt-get install -y git gcc g++
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy the go.mod and go.sum files first, and download dependencies
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy the rest of the application source code to the working directory
+COPY . .
+
+# Build the Go application
+ENV CGO_ENABLED=0
+ENV GOOS=linux
+ENV GOARCH=arm64  
+# Set this to arm64 if you're targeting ARM
+RUN go build -o goapp .
+
+# Stage 2: Run the Go app with a minimal image
+FROM arm64v8/debian:bullseye-slim
+
+# Set up necessary certificates (for HTTPS communication, if required)
+RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
+
+# Set the working directory in the second stage
+WORKDIR /root/
+
+# Copy the compiled Go binary from the first stage
+COPY --from=builder /app/goapp .
+
+# Expose the port that the app will run on (e.g., 9000 if you're using Fiber)
+EXPOSE 9000
+
+# Run the Go application
+CMD ["./goapp"]

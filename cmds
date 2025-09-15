@@ -1,0 +1,18 @@
+awslocal lambda create-function \
+    --function-name sid-lmabda \
+    --runtime python3.9 \
+    --zip-file fileb://depl.zip \
+    --handler hello.lambda_handler \
+    --role arn:aws:iam::000000000000:role/lambda-role \
+    --tags '{"_custom_id_":"my-custom-subdomain"}'
+
+type FilterRequest struct {
+	S3Keys    []string `json:"s3Keys"`
+	StartTime string   `json:"startTime"`
+	EndTime   string   `json:"endTime"`
+	Regex     string   `json:"regex"`
+	Contains  string   `json:"contains"`
+}
+
+curl -XPOST "http://localhost:8080/2015-03-31/functions/function/invocations" \
+    -d '{"s3Keys":["log.json"], "startTime" : "2024-11-18T12:56:35Z", "endTime":"2024-11-18T12:57:35Z", "regex":"", "contains":""}'

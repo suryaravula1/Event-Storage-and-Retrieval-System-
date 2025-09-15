@@ -1,0 +1,11 @@
+/* LogDisplay.css */
+.log-display {
+    border: 2px solid #007bff; /* Blue border color */
+    border-radius: 8px; /* Rounded corners */
+    padding: 16px; /* Padding inside the box */
+    margin-top: 20px; /* Space above the display box */
+    max-height: 400px; /* Optional: Limit the height */
+    overflow-y: auto; /* Enable scrolling if content exceeds the height */
+    background-color: #f8f9fa; /* Light background color */
+  }
+  
