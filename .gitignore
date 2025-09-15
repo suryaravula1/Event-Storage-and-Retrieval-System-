@@ -48,3 +48,20 @@ yarn-error.log*
 # Build outputs
 dist/
 build/
+
+# Infrastructure specific
+infra/.miniodata
+infra/.redis_data
+sample
+
+# React UI specific
+log-search-ui/node_modules
+log-search-ui/.pnp
+log-search-ui/.pnp.js
+log-search-ui/coverage
+log-search-ui/build
+log-search-ui/.DS_Store
+log-search-ui/.env.local
+log-search-ui/.env.development.local
+log-search-ui/.env.test.local
+log-search-ui/.env.production.local
