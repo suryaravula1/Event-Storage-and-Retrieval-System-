@@ -5,7 +5,7 @@ services:
   log-push:
     depends_on:
       - kafka
-    image : grs/log-push:latest
+    image : ess/log-push:latest
     container_name: log-push
     ports:
       - "9000:9000"
@@ -13,6 +13,7 @@ services:
       KAFKA_HOST: kafka
       KAFKA_PORT: 9092
       KAFKA_TOPIC: kafka
+      SERVER_PORT: 9000
 
 
   zookeeper:

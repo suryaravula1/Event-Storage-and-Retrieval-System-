@@ -7,8 +7,7 @@ import (
 	"time"
 	"logPush/kafkautils"
 	"encoding/json"
-
-	// "os"
+	"os"
 
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/gofiber/fiber/v2"
@@ -21,9 +20,16 @@ type Event struct {
 
 func main() {
 	// Step 1: Create Kafka Admin Client
-	// kafka_host := os.Getenv("KAFKA_HOST")
+	kafka_host := os.Getenv("KAFKA_HOST")
+	if kafka_host == "" {
+		kafka_host = "localhost"
+	}
+	kafka_port := os.Getenv("KAFKA_PORT")
+	if kafka_port == "" {
+		kafka_port = "9092"
+	}
 	adminClient, err := kafka.NewAdminClient(&kafka.ConfigMap{
-		"bootstrap.servers": "localhost:9092", // Replace with the first broker address
+		"bootstrap.servers": kafka_host + ":" + kafka_port,
 	})
 	if err != nil {
 		log.Fatalf("Failed to create Kafka admin client: %s\n", err)
@@ -90,8 +96,12 @@ func main() {
 	})
 
 	// Start Fiber server to listen for logs from Fluentd
+	server_port := os.Getenv("SERVER_PORT")
+	if server_port == "" {
+		server_port = "9000"
+	}
 	go func() {
-		log.Fatal(app.Listen("localhost:3003"))
+		log.Fatal(app.Listen(":" + server_port))
 	}()
 	select {}
 

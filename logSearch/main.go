@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"log"
 	"strconv"
+	"os"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/gofiber/fiber/v2"
@@ -28,9 +29,17 @@ func main() {
 
 	// Initialize Redis client
 	log.Print("Connecting to Redis.")
-	// rdb := redis.NewClient(&redis.Options{
-	// 	Addr: "redis:6379", // Adjust the address if needed
-	// })
+	redisHost := os.Getenv("REDIS_HOST")
+	if redisHost == "" {
+		redisHost = "redis"
+	}
+	redisPort := os.Getenv("REDIS_PORT")
+	if redisPort == "" {
+		redisPort = "6379"
+	}
+	rdb := redis.NewClient(&redis.Options{
+		Addr: redisHost + ":" + redisPort,
+	})
 
 	log.Print("Connected to Redis.")
 	app.Get("/", func(c *fiber.Ctx) error {
@@ -65,7 +74,7 @@ func main() {
 		log.Printf("Fetching logs for UUID: %s with offset: %d", param, offset)
 
 		// Fetch logs from Redis
-		data, err := aggregate.Rdb.Get(ctx, param).Result()
+		data, err := rdb.Get(ctx, param).Result()
 		if err != nil {
 			if err == redis.Nil {
 				return c.Status(fiber.StatusNotFound).SendString("UUID not found")

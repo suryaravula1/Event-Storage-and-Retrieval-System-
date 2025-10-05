@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"sync"
 	"time"
+	"os"
 
 	// "github.com/aws/aws-lambda-go/events"
 	awslambda "github.com/aws/aws-lambda-go/lambda"
@@ -49,9 +50,29 @@ func init() {
 	// ctx := context.Background()
 	log.Printf("initting client")
 	var err error
-	client, err = minio.New("localhost:9004", &minio.Options{
-		Creds:  credentials.NewStaticV4("root", "qwertyuiop", ""),Region: "us-east-1", Secure: false,
 	
+	// Get environment variables with defaults
+	s3Endpoint := os.Getenv("S3_ENDPOINT")
+	if s3Endpoint == "" {
+		s3Endpoint = "localhost:9004"
+	}
+	s3AccessKey := os.Getenv("S3_ACCESS_KEY")
+	if s3AccessKey == "" {
+		s3AccessKey = "root"
+	}
+	s3SecretKey := os.Getenv("S3_SECRET_KEY")
+	if s3SecretKey == "" {
+		s3SecretKey = "qwertyuiop"
+	}
+	s3Region := os.Getenv("S3_REGION")
+	if s3Region == "" {
+		s3Region = "us-east-1"
+	}
+	
+	client, err = minio.New(s3Endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(s3AccessKey, s3SecretKey, ""),
+		Region: s3Region, 
+		Secure: false,
 	})
 	log.Printf("innited client")
 	if err != nil {
