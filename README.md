@@ -13,15 +13,15 @@ Event logging and storage are among the key features in modern distributed syste
 ![UI](docs/ui1.png)
 
 ## Why Golang
-well its very easy to manage concurrency with go. (channels and waitgroups are just too powerful)
+well it's very easy to manage concurrency with go. (channels and waitgroups are just too powerful)
 ## Build Steps
 
-I have containerized every micorservice. Based on the the machine architecture(ARM/ AMD), you will need to buid docker images of each microservice.
+I have containerized every microservice. Based on the machine architecture (ARM/AMD), you will need to build docker images of each microservice.
 
 ### Microservices
 
 #### log-push
-This service is where customer push all the logs. (via POST requests). 
+This service is where customers push all the logs (via POST requests).
 - multiple events in one request
 - validation of the data
 - timestamp checks
@@ -35,11 +35,11 @@ docker build -t ess/log-push .
 ```
 
 #### log-persist
-log-persist persists the events on the object storage (S3). Object keys are made using timestamp so that its easy for retrieval later.
-- store in flight logs using in memory cache for making it retriavble ASAP to log-serach
+log-persist persists the events on the object storage (S3). Object keys are made using timestamp so that it's easy for retrieval later.
+- store in-flight logs using in-memory cache for making it retrievable ASAP to log-search
 - capable of performing full event filtering on the in-memory data
 - smart creation and timestamp key assignment to the final object-storage files
-- hashing the objects for further deduplicaition of the events further from log-search
+- hashing the objects for further deduplication of the events further from log-search
 
 Build image 
 ```bash
@@ -50,31 +50,31 @@ docker build -t ess/log-persist .
 
 #### log-search
 
-log-search is the service with which user interacts with the events by providing a search functionality with regex and string matching.
+log-search is the service with which the user interacts with the events by providing a search functionality with regex and string matching.
 - making subtasks for a query based on number of s3 objects to scan for events
-- invoking lambda function (severless) based on number of tasks and distribution of s3 objects to perform filtering
-- consolidating filtered data from lambda functions and log-write(in-flight data) and dupping data gradually to the Redis cache with unique query ID
+- invoking lambda function (serverless) based on number of tasks and distribution of s3 objects to perform filtering
+- consolidating filtered data from lambda functions and log-write (in-flight data) and dumping data gradually to the Redis cache with unique query ID
 - deduplication of the data based on hashes of the objects processed
 Build image 
 ```bash
 cd logSearch
 #ess stands for event-storage-system
-docker build -t ess/log-serach .
+docker build -t ess/log-search .
 ```
 
 #### UI
-well its not technically a microsrvice but it has its own features.(simple ui built with react)
-- continuosly polling the log-serach api to get the search results gradually. 
-- dynamic scrolling (gradulally retrieval of results) 
+well it's not technically a microservice but it has its own features (simple UI built with React)
+- continuously polling the log-search API to get the search results gradually
+- dynamic scrolling (gradual retrieval of results)
 
 Run UI
 ```bash
-cd log-serach-ui
+cd log-search-ui
 #ess stands for event-storage-system
 npm start
 ```
 
-### Infrastructure needed to start the runnig the project
+### Infrastructure needed to start running the project
 After building all the images from microservices, you can bring all services up with docker compose.
 
 ```bash
@@ -86,21 +86,21 @@ docker-compose up -d
 This is probably backbone of decoupling the incoming traffic and event processing/writing steps
 
 #### Object storage
-You can either deploy using S3 AWS service or deploy a stand-alone serve (using Minio - the docker-compose in infra using a minio image to store objects locally)
+You can either deploy using the AWS S3 service or deploy a stand-alone server (using MinIO - the docker-compose in infra uses a MinIO image to store objects locally)
 
 #### Lambda function (Serverless)
 
 If you have AWS credits you can probably deploy the code in directory "lambda" as a function which has to have access to the events objects in object storage.
 But, for playing around to know how system works, you can probably use lambda-runtime-environment (LRE). 
-few ponints to note about the LRE
+few points to note about the LRE
 - only one invocation at a time
 - bit slower because its basically simulating the lambda runtime
 
 
 ## Identified limitations
-- there is always a cap to the parallel lambda invocations : (around 1000 lmabdas/region)
-- most of the time in lambdas are spent over makeing GET calls to S3 objects
-- improve storage methods : switch to Coulumnar based storage solutions for faster processing
+- there is always a cap to the parallel lambda invocations: (around 1000 lambdas/region)
+- most of the time in lambdas is spent making GET calls to S3 objects
+- improve storage methods: switch to Columnar based storage solutions for faster processing
 
 
 
